@@ -2,29 +2,32 @@ package rest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import facades.FacadeExample;
+import entities.Movie;
+import facades.MovieFacade;
+import java.util.List;
 import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import utils.EMF_Creator;
 
 //Todo Remove or change relevant parts before ACTUAL use
-@Path("xxx")
-public class RenameMeResource {
+@Path("movie")
+public class MovieResource {
 
     private static final EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(
                 "pu",
                 "jdbc:mysql://localhost:3307/startcode",
                 "dev",
                 "ax2",
-                EMF_Creator.Strategy.CREATE);
+                EMF_Creator.Strategy.DROP_AND_CREATE);
     
     //An alternative way to get the EntityManagerFactory, whithout having to type the details all over the code
     //EMF = EMF_Creator.createEntityManagerFactory(DbSelector.DEV, Strategy.CREATE);
     
-    private static final FacadeExample FACADE =  FacadeExample.getFacadeExample(EMF);
+    private static final MovieFacade FACADE =  MovieFacade.getFacadeExample(EMF);
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
             
     @GET
@@ -35,11 +38,39 @@ public class RenameMeResource {
     @Path("count")
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public String getRenameMeCount() {
-        long count = FACADE.getRenameMeCount();
+    public String getMovieCount() {
+        long count = FACADE.getMovieCount();
         //System.out.println("--------------->"+count);
         return "{\"count\":"+count+"}";  //Done manually so no need for a DTO
+    }
+    
+    @GET
+    @Path("/all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAll() {
+        MovieFacade mf = new MovieFacade();
+        List<Movie> movieList = mf.getAllMovies();
+        return new Gson().toJson(movieList);
+    }
+    
+    @GET
+    @Path("/title/{name}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getMovieOnName(@PathParam("name") String name) {
+        MovieFacade mf = new MovieFacade();
+        List<Movie> movieList = mf.getMovieByName(name);
+        return new Gson().toJson(movieList);
+    }
+    
+    @GET
+    @Path("/id/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getEmployeeOnId(@PathParam("id") Long id) {
+        MovieFacade mf = new MovieFacade();
+        Movie m = mf.getMovieByID(id);
+        return new Gson().toJson(m);
     }
 
  
 }
+
